@@ -9,16 +9,72 @@ class CampingSpider(scrapy.Spider):
         # Links von der Übersichtseite extrahieren & sammeln
         links = response.css('div.grid-item-content.items.k0 a::attr(href)').extract()
 
-        # mögliche Duplikate entfernen
-        unique_links = set(links)
+        # mögliche Duplikate entfernen und wieder in eine Liste gewandelt (für die Einfachere Generierung eines Test-Datensatz).
+        unique_links = list(set(links))
 
+        # Test-Datensatz generieren:
+        #for link in unique_links[:3]:
+
+        # End-Datensatz:
         for link in unique_links:
             # Link folgen und die Funktion 'parse_websites' ausführen
             # Mit ".follow" können auch relative URLs verwendet werden, ohne sie zu einem absoluten Pfad umzuwandeln
             yield response.follow(url=link, callback=self.parse_campingplatz)
 
     def parse_campingplatz(self, response):
-        # XPaths für gewünschte Attribute:
+
+        # Sammlung XPaths für gewünschte Attribute:
+        feature_xpaths = {
+            'sport field': '//*[@id="features"]/div/div[1]/div[3]/div[1]/div/span/span',
+            'golf': '//*[@id="features"]/div/div[1]/div[3]/div[3]/div/span/span',
+            'tennis': '//*[@id="features"]/div/div[1]/div[3]/div[2]/div/span/span',
+
+            'indoor swimming pool': '//*[@id="features"]/div/div[1]/div[3]/div[7]/div/span/span',
+            'unheated pool': '//*[@id="features"]/div/div[1]/div[4]/div[11]/div/span/span',
+            'bathing facilities': '//*[@id="features"]/div/div[1]/div[4]/div[20]/div/span/span',
+            'boat rental': '//*[@id="features"]/div/div[5]/div[3]/div[7]/div/span/span',
+            'bike rental': '//*[@id="features"]/div/div[5]/div[3]/div[6]/div/span/span',
+            'entertainment': '//*[@id="features"]/div/div[1]/div[4]/div[8]/div/span/span',
+            'playground': '//*[@id="features"]/div/div[1]/div[4]/div[9]/div/span/span',
+            'disco': '//*[@id="features"]/div/div[1]/div[4]/div[19]/div/span/span',
+            'wifi': '//*[@id="features"]/div/div[3]/div[1]/div[1]/div/span/span',
+            'TV lounge': '//*[@id="features"]/div/div[3]/div[5]/div[2]/div/span/span',
+
+            'easy access for disabled people': '/html/body/div[4]/div/div/div[2]/div[2]/div[1]/div[2]/div[3]/div[1]/div/span/span',
+            'animals allowed': '/html/body/div[4]/div/div/div[2]/div[2]/div[1]/div[2]/div[3]/div[7]/div/span/span',
+            'kitchen': '//*[@id="features"]/div/div[3]/div[2]/div[1]/div/span/span',
+            'BBQ area': '//*[@id="features"]/div/div[3]/div[2]/div[2]/div/span/span',
+
+            'restaurant': '//*[@id="features"]/div/div[1]/div[1]/div[1]/div/span/span',
+            'take away': '//*[@id="features"]/div/div[1]/div[1]/div[2]/div/span/span',
+            'shop with limited range': '//*[@id="features"]/div/div[1]/div[2]/div[1]/div/span/span',
+            'kiosk': '//*[@id="features"]/div/div[1]/div[2]/div[2]/div/span/span',
+            'shopping centre': '//*[@id="features"]/div/div[1]/div[2]/div[4]/div/span/span',
+            'shop with rich range': '//*[@id="features"]/div/div[1]/div[2]/div[5]/div/span/span',
+            'washing machine': '//*[@id="features"]/div/div[3]/div[4]/div[2]/div/span/span',
+            'laundry dryer / tumble dryer': '//*[@id="features"]/div/div[3]/div[4]/div[3]/div/span/span',
+
+            'hiking': '//*[@id="features"]/div/div[2]/div[4]/div[20]/div/span/span',
+            'lake with shingle / sandy beach': '//*[@id="features"]/div/div[4]/div[3]/div[1]/div/span/span',
+            'lake with stony beach': '//*[@id="features"]/div/div[4]/div[3]/div[2]/div/span/span',
+            'river': '//*[@id="features"]/div/div[4]/div[3]/div[3]/div/span/span',
+
+            'train station': '//*[@id="features"]/div/div[5]/div[2]/div[1]/div/span/span',
+            'bus': '//*[@id="features"]/div/div[5]/div[2]/div[2]/div/span/span',
+
+            'VSC membership': '/html/body/div[4]/div/div/div[2]/div[2]/div[1]/div[2]/div[4]/div[1]/div/span/span',
+            'TCS membership': '/html/body/div[4]/div/div/div[2]/div[2]/div[1]/div[2]/div[4]/div[2]/div/span/span',
+            'SCCV membership': '/html/body/div[4]/div/div/div[2]/div[2]/div[1]/div[2]/div[4]/div[3]/div/span/span'
+        }
+
+        # Farbe und Text aus Xpath Element extrahieren. Farbe 'lightgrey' gibt Auskunft darüber, dass dieses Merkmal (Feature-Element) nicht angeboten wird.
+        # Text wird extrahiert, damit überprüft werden kann, ob das richtige Xpath Element abgerufen wurde.
+        def extract_feature_text_and_status(feature_xpath):
+            feature = response.xpath(feature_xpath)
+            style = feature.xpath('./@style').get()
+            text = feature.xpath('normalize-space()').get()
+            # wenn die Schrift hellgrau ist, ist das Merkmal nicht vorhanden (0), ansonsten ist es vorhanden (1)
+            return 0 if 'lightgrey' in style else 1, text
 
         # Anzahl Aktivitaeten:
         activity_fulltext = response.xpath('/html/body/div[4]/div/div/div[2]/div[2]/div[1]/div[6]')
@@ -28,61 +84,44 @@ class CampingSpider(scrapy.Spider):
         # Anzahl Sterne:
         star_div = response.xpath('/html/body/div[4]/div/div/div[2]/div[1]/div[1]/div').get()
         if star_div:
+            # alle aufgeführten Sterne
+            num_star = star_div.count('fa fa-star')
+            # alle Sterne, die nicht ausgefüllt sind
             num_star_o = star_div.count('fa fa-star-o')
-            rating = 5 - num_star_o
+            rating = num_star - num_star_o
         else:
             rating = None
 
-        #extrahiere die gewünschten Elemente & übergeben in einen Dictionary
-        yield {
+        # extrahiere die gewünschten Elemente & übergeben in einen Dictionary:
+        result = {
             'url': response.url,
             'name': response.xpath('/html/body/div[3]/div/div/div/div/h1/div[1]/div/text()').get(default='Nicht gefunden'),
-            'locality': response.xpath('/html/body/div[4]/div/div/div[2]/div[1]/div[4]/div/text()[2]').get(default='Nicht gefunden'),
-            'website': response.xpath('/html/body/div[4]/div/div/div[2]/div[1]/div[4]/div/a[2]').get(default='Nicht gefunden'),
+            'locality': response.xpath('normalize-space(/html/body/div[4]/div/div/div[2]/div[1]/div[4]/div/text()[2])').get(default='Nicht gefunden'),
+            'website': response.xpath('normalize-space(/html/body/div[4]/div/div/div[2]/div[1]/div[4]/div/a[2])').get(default='Nicht gefunden'),
 
-            'sport field': response.xpath('//*[@id="features"]/div/div[1]/div[3]/div[1]/div/span/span').get(default='Nicht gefunden'),
-            'golf': response.xpath('//*[@id="features"]/div/div[1]/div[3]/div[3]/div/span/span').get(default='Nicht gefunden'),
-            'tennis': response.xpath('//*[@id="features"]/div/div[1]/div[3]/div[2]/div/span/span').get(default='Nicht gefunden'),
-
-            'indoor swimming pool': response.xpath('//*[@id="features"]/div/div[1]/div[3]/div[7]/div/span/span').get(default='Nicht gefunden'),
-            'unheated pool': response.xpath('//*[@id="features"]/div/div[1]/div[4]/div[11]/div/span/span').get(default='Nicht gefunden'),
-            'bathing facilities': response.xpath('//*[@id="features"]/div/div[1]/div[4]/div[20]/div/span/span').get(default='Nicht gefunden'),
-            'boat rental': response.xpath('//*[@id="features"]/div/div[5]/div[3]/div[7]/div/span/span').get(default='Nicht gefunden'),
-            'bike rental': response.xpath('//*[@id="features"]/div/div[5]/div[3]/div[6]/div/span/span').get(default='Nicht gefunden'),
-            'entertainment': response.xpath('//*[@id="features"]/div/div[1]/div[4]/div[8]/div/span/span').get(default='Nicht gefunden'),
-            'playground': response.xpath('//*[@id="features"]/div/div[1]/div[4]/div[9]/div/span/span').get(default='Nicht gefunden'),
-            'dico': response.xpath('//*[@id="features"]/div/div[1]/div[4]/div[19]/div/span/span').get(default='Nicht gefunden'),
-            'wifi': response.xpath('//*[@id="features"]/div/div[3]/div[1]/div[1]/div/span/span').get(default='Nicht gefunden'),
-            'TV lounge': response.xpath('//*[@id="features"]/div/div[3]/div[5]/div[2]/div/span/span').get(default='Nicht gefunden'),
-            
-            'tourist pitches': response.xpath('/html/body/div[4]/div/div/div[2]/div[2]/div[1]/div[2]/div[2]/div[4]/p').get(default='Nicht gefunden'),
-            'easy access for disabled people': response.xpath('/html/body/div[4]/div/div/div[2]/div[2]/div[1]/div[2]/div[3]/div[1]/div/span/span').get(default='Nicht gefunden'),
-            'animals allowed': response.xpath('/html/body/div[4]/div/div/div[2]/div[2]/div[1]/div[2]/div[3]/div[7]/div/span/span').get(default='Nicht gefunden'),
-            'kitchen': response.xpath('//*[@id="features"]/div/div[3]/div[2]/div[1]/div/span/span').get(default='Nicht gefunden'),
-            'BBQ area': response.xpath('//*[@id="features"]/div/div[3]/div[2]/div[2]/div/span/span').get(default='Nicht gefunden'),
-            'open (seasons 1)': response.xpath('//*[@id="price"]/p[1]/span').get(default='Nicht gefunden'),
-            'open (seasons 2)': response.xpath('//*[@id="price"]/p[2]/span').get(default='Nicht gefunden'),
-            'open (seasons 3)': response.xpath('//*[@id="price"]/p[3]/span').get(default='Nicht gefunden'),
-            'restaurant': response.xpath('//*[@id="features"]/div/div[1]/div[1]/div[1]/div/span/span').get(default='Nicht gefunden'),
-            'take away': response.xpath('//*[@id="features"]/div/div[1]/div[1]/div[2]/div/span/span').get(default='Nicht gefunden'),
-            'Shop with limited range': response.xpath('//*[@id="features"]/div/div[1]/div[2]/div[1]/div/span/span').get(default='Nicht gefunden'),
-            'kiosk': response.xpath('//*[@id="features"]/div/div[1]/div[2]/div[2]/div/span/span').get(default='Nicht gefunden'),
-            'shopping centre': response.xpath('//*[@id="features"]/div/div[1]/div[2]/div[4]/div/span/span').get(default='Nicht gefunden'),
-            'shop with rich range': response.xpath('//*[@id="features"]/div/div[1]/div[2]/div[5]/div/span/span').get(default='Nicht gefunden'),
-            'washing machine': response.xpath('//*[@id="features"]/div/div[3]/div[4]/div[2]/div/span/span').get(default='Nicht gefunden'),
-            'laundry dryer / tumble dryer': response.xpath('//*[@id="features"]/div/div[3]/div[4]/div[3]/div/span/span').get(default='Nicht gefunden'),
-            
             'star category': rating,
-            'VSC membership': response.xpath('/html/body/div[4]/div/div/div[2]/div[2]/div[1]/div[2]/div[4]/div[1]/div/span/span').get(default='Nicht gefunden'),
-            'TCS membership': response.xpath('/html/body/div[4]/div/div/div[2]/div[2]/div[1]/div[2]/div[4]/div[3]/div/span/span').get(default='Nicht gefunden'),
-            'SCCV membership': response.xpath('/html/body/div[4]/div/div/div[2]/div[2]/div[1]/div[2]/div[4]/div[2]/div/span/span').get(default='Nicht gefunden'),
-            
-            'hiking': response.xpath('//*[@id="features"]/div/div[2]/div[4]/div[20]/div/span/span').get(default='Nicht gefunden'),
-            'lake with shingle / sandy beach': response.xpath('//*[@id="features"]/div/div[4]/div[3]/div[1]/div/span/span').get(default='Nicht gefunden'),
-            'lake with stony, rocky beach': response.xpath('//*[@id="features"]/div/div[4]/div[3]/div[2]/div/span/span').get(default='Nicht gefunden'),
-            'river': response.xpath('//*[@id="features"]/div/div[4]/div[3]/div[3]/div/span/span').get(default='Nicht gefunden'),
-            
             'activities': count_activity,
-            'train station': response.xpath('//*[@id="features"]/div/div[5]/div[2]/div[1]/div/span/span').get(default='Nicht gefunden'),
-            'bus': response.xpath('//*[@id="features"]/div/div[5]/div[2]/div[2]/div/span/span').get(default='Nicht gefunden'),
+
+            'tourist pitches': response.xpath('normalize-space(/html/body/div[4]/div/div/div[2]/div[2]/div[1]/div[2]/div[2]/div[4]/p)').get(default='Nicht gefunden'),
+            'open (seasons 1)': response.xpath('normalize-space(//*[@id="price"]/p[1]/span)').get(default='Nicht gefunden'),
+            'open (seasons 2)': response.xpath('normalize-space(//*[@id="price"]/p[2]/span)').get(default='Nicht gefunden'),
+            'open (seasons 3)': response.xpath('normalize-space(//*[@id="price"]/p[3]/span)').get(default='Nicht gefunden'),
+            'open (seasons 4)': response.xpath('normalize-space(//*[@id="price"]/p[4]/span)').get(default='Nicht gefunden'),
+            'open (seasons 5)': response.xpath('normalize-space(//*[@id="price"]/p[5]/span)').get(default='Nicht gefunden'),
+            'open (seasons 6)': response.xpath('normalize-space(//*[@id="price"]/p[6]/span)').get(default='Nicht gefunden'),
+            'open (seasons 7)': response.xpath('normalize-space(//*[@id="price"]/p[7]/span)').get(default='Nicht gefunden'),
         }
+
+        # Hinzufügen von Featuren
+        for key, xpath in feature_xpaths.items():
+            status, text = extract_feature_text_and_status(xpath)
+
+            # für Test-Datensatz
+            #result[key] = f"{status} {text}"
+
+            # End-Datensatz:
+            result[key] = status
+
+
+        # Ausgabe des Resultates:
+        yield result
