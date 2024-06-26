@@ -55,7 +55,7 @@ class CampingSpider(scrapy.Spider):
             'laundry dryer / tumble dryer': '//*[@id="features"]/div/div[3]/div[4]/div[3]/div/span/span',
 
             'hiking': '//*[@id="features"]/div/div[2]/div[4]/div[20]/div/span/span',
-            'lake with shingle / sandy beach': '//*[@id="features"]/div/div[4]/div[3]/div[1]/div/span/span',
+            'lake with sandy beach': '//*[@id="features"]/div/div[4]/div[3]/div[1]/div/span/span',
             'lake with stony beach': '//*[@id="features"]/div/div[4]/div[3]/div[2]/div/span/span',
             'river': '//*[@id="features"]/div/div[4]/div[3]/div[3]/div/span/span',
 
