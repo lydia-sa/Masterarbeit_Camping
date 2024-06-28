@@ -5,6 +5,8 @@ class CampingSpider(scrapy.Spider):
     allowed_domains = ['camping.ch']
     start_urls = ['https://camping.ch/de/campingplaetze']
 
+    # LINKS ABRUFEN
+    # -------------------------------------------------------------------
     def parse(self, response):
         # Links von der Übersichtseite extrahieren & sammeln
         links = response.css('div.grid-item-content.items.k0 a::attr(href)').extract()
@@ -21,6 +23,8 @@ class CampingSpider(scrapy.Spider):
             # Mit ".follow" können auch relative URLs verwendet werden, ohne sie zu einem absoluten Pfad umzuwandeln
             yield response.follow(url=link, callback=self.parse_campingplatz)
 
+    # ATTRIBUTE ABRUFEN
+    # -------------------------------------------------------------------
     def parse_campingplatz(self, response):
 
         # Sammlung XPaths für gewünschte Attribute:
@@ -112,7 +116,7 @@ class CampingSpider(scrapy.Spider):
             'open (seasons 7)': response.xpath('normalize-space(//*[@id="price"]/p[7]/span)').get(default='Nicht gefunden'),
         }
 
-        # Hinzufügen von Featuren
+        # Hinzufügen von weiteren Attribute
         for key, xpath in feature_xpaths.items():
             status, text = extract_feature_text_and_status(xpath)
 
