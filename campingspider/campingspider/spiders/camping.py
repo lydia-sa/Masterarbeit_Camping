@@ -82,7 +82,7 @@ class CampingSpider(scrapy.Spider):
             # wenn die Schrift hellgrau ist, ist das Merkmal nicht vorhanden (0), ansonsten ist es vorhanden (1)
             return 0 if 'lightgrey' in style else 1, text
 
-        # Anzahl Aktivitaeten:
+        # Anzahl Aktivitäten:
         activity_fulltext = response.xpath('/html/body/div[4]/div/div/div[2]/div[2]/div[1]/div[6]')
         # Elemente zählen, welche die Klasse 'col-xs-12' aufweisen:
         count_activity = len(activity_fulltext.xpath('.//div[contains(@class, "col-xs-12") and contains(@class, "col-md-12")]'))

@@ -1,4 +1,4 @@
-url;Preisseite;Latitude;Longitude;pitch at the waterfront;other accommodation;small pitch (<80 m2);medium pitch  (~100 m2);large pitch  (>110 m2);main season;low season;total_price
+url;Preisseite;Latitude;Longitude;pitch on the shore;other accommodation;small pitch (<80 m2);medium pitch  (~100 m2);large pitch  (>110 m2);main season;low season;total_price
 https://camping.ch/de/campingplatz/graubuenden/lenzerheide/camping-gravas?l=true;https://camping-lenzerheide.ch/de/camping-gravas/angebot-preise/;46.72276;9.55544;0;1;1;0;0;1;0;38
 https://camping.ch/de/campingplatz/graubuenden/lenzerheide/camping-gravas?l=true;https://camping-lenzerheide.ch/de/camping-gravas/angebot-preise/;46.72276;9.55544;0;1;0;1;0;1;0;43
 https://camping.ch/de/campingplatz/graubuenden/lenzerheide/camping-gravas?l=true;https://camping-lenzerheide.ch/de/camping-gravas/angebot-preise/;46.72276;9.55544;0;1;1;0;0;0;1;40
@@ -490,7 +490,12 @@ https://camping.ch/de/campingplatz/berner-oberland/boenigen/tcs-camping-boenigen
 https://camping.ch/de/campingplatz/berner-oberland/boenigen/tcs-camping-boenigen-interlaken?l=true;https://www.tcs.ch/de/camping-reisen/camping-insider/campingplaetze/tcs-campingplaetze/campingplatz-boenigen-interlaken.php;46.69111306;7.893611111;0;1;0;1;0;1;0;56.8
 https://camping.ch/de/campingplatz/berner-oberland/boenigen/seeruhe?l=true;;;;;;0;0;0;0;0;0
 https://camping.ch/de/campingplatz/berner-oberland/iseltwald/du-lac?l=true;https://www.campingdulac.ch/pages/deutsch/preise.php;46.71122889;7.969248889;0;1;0;1;0;1;1;49.8
-https://camping.ch/de/campingplatz/berner-oberland/iseltwald/strandbad-iseltwald?l=true;;;;;;0;0;0;0;0;0
+https://camping.ch/de/campingplatz/zentralschweiz/morgarten/camping_naas_sod?l=true;;;;;;0;0;0;0;0;0
+https://camping.ch/de/campingplatz/zentralschweiz/morgarten/camping_chaellermatt?l=true;;;;;;0;0;0;0;0;0
+https://camping.ch/de/campingplatz/ostschweiz/triesen-liechtenstein/mittagsspitze?l=true;;;;;;0;0;0;0;0;0
+https://camping.ch/de/campingplatz/grenznah/Meckenbeuren/Ravensburger-Spieleland?l=true;;;;;;0;0;0;0;0;0
+https://camping.ch/de/campingplatz/grenznah/prutz-tirol/aktiv-camping-prutz-tirol?l=true;;;;;;0;0;0;0;0;0
+https://camping.ch/de/campingplatz/zentralschweiz/morgarten/camping_neselen?l=true;;;;;;0;0;0;0;0;0
 https://camping.ch/de/campingplatz/berner-oberland/ringgenberg/au-lac?l=true;https://www.au-lac.ch/de/camping;46.70730694;7.912085;0;0;1;0;0;0;1;34
 https://camping.ch/de/campingplatz/berner-oberland/ringgenberg/au-lac?l=true;https://www.au-lac.ch/de/camping;46.70730694;7.912085;0;0;1;0;0;1;0;39
 https://camping.ch/de/campingplatz/berner-oberland/ringgenberg/au-lac?l=true;https://www.au-lac.ch/de/camping;46.70730694;7.912085;1;0;1;0;0;0;1;32
