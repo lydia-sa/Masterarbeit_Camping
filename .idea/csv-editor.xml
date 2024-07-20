@@ -31,6 +31,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\df_camping_analysis_no_outl.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\rohdaten_preis.csv">
           <value>
             <Attribute>
